@@ -8,9 +8,9 @@ from tokens import ResultsCountToken, ReviewUrlsToken
 from downloads import Downloader
 
 
-def download_reviews(review_file):
+def download_reviews(review_file, num_threads=8):
     downloader = Downloader()
-    pool = Pool(4)
+    pool = Pool(num_threads)
 
     with open(review_file, "r") as f:
         review_uris = [line for line in f.readlines() if line.startswith("https")]
@@ -48,8 +48,9 @@ def download_review_urls(year, file, page_size=6, start_page=1, delay=1):
 
 
 if __name__ == "__main__":
+    start = time.time()
     download_reviews("review_urls_2021.txt")
-
+    print(time.time() - start)
     # with open("review_urls_2021.txt", "a") as f:
     #     for urls in download_review_urls(2021, f):
     #         for url in urls:

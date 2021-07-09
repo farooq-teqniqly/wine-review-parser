@@ -1,4 +1,6 @@
 import requests
+import time
+import os
 
 BASE_URI = "https://www.winemag.com/?s=&drink_type=wine&pub_date_web={0}&page={1}"
 
@@ -23,14 +25,16 @@ class Downloader:
         response = self.session.get(uri, headers=HEADERS)
         return response.content
 
-    def download_to_file(self, uri):
+    def download_to_file(self, uri, delay=1):
         content = self.download_uri(uri)
-        filename = uri.split("/")[-2]
+        root_path = r"C:\temp\wine_reviews\2021"
+        filename = os.path.join(root_path, uri.split("/")[-2])
 
         with open(filename, "wb") as f:
             f.write(content)
 
         print(f"Downloaded {uri} to {filename}")
+        time.sleep(delay)
 
     def _download_recursive(self, year, page, current_retry_count, retries):
         try:
