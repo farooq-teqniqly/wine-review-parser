@@ -14,16 +14,27 @@ class Downloader:
 
     def __init__(self, retries=3):
         self.retries = retries
+        self.session = requests.session()
 
     def download(self, year, page):
         return self._download_recursive(year, page, 0, self.retries)
 
-    def _download_recursive(self, year, page, current_retry_count, retries):
-        session = requests.session()
+    def download_uri(self, uri):
+        response = self.session.get(uri, headers=HEADERS)
+        return response.content
 
+    def download_to_file(self, uri):
+        content = self.download_uri(uri)
+        filename = uri.split("/")[-2]
+
+        with open(filename, "wb") as f:
+            f.write(content)
+
+        print(f"Downloaded {uri} to {filename}")
+
+    def _download_recursive(self, year, page, current_retry_count, retries):
         try:
-            response = session.get(BASE_URI.format(year, page), headers=HEADERS)
-            return response.content
+            return self.download_uri(BASE_URI.format(year, page))
         except:
             if current_retry_count == retries:
                 raise

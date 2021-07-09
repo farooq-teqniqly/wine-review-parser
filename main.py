@@ -1,10 +1,22 @@
 import math
 import time
 from typing import List
+from multiprocessing.dummy import Pool
 
 from soup import SoupFactory
 from tokens import ResultsCountToken, ReviewUrlsToken
 from downloads import Downloader
+
+
+def download_reviews(review_file):
+    downloader = Downloader()
+    pool = Pool(4)
+
+    with open(review_file, "r") as f:
+        review_uris = [line for line in f.readlines() if line.startswith("https")]
+        pool.map(downloader.download_to_file, review_uris)
+        pool.terminate()
+        pool.join()
 
 
 def download_review_urls(year, file, page_size=6, start_page=1, delay=1):
@@ -36,10 +48,12 @@ def download_review_urls(year, file, page_size=6, start_page=1, delay=1):
 
 
 if __name__ == "__main__":
-    with open("review_urls_2021.txt", "a") as f:
-        for urls in download_review_urls(2021, f):
-            for url in urls:
-                print(url)
-                f.write(url)
-                f.write("\n")
-            f.flush()
+    download_reviews("review_urls_2021.txt")
+
+    # with open("review_urls_2021.txt", "a") as f:
+    #     for urls in download_review_urls(2021, f):
+    #         for url in urls:
+    #             print(url)
+    #             f.write(url)
+    #             f.write("\n")
+    #         f.flush()
